@@ -44,8 +44,7 @@ xmlcontent='''<?xml version="1.0" encoding="UTF-8"?>
 
 i=1
 for img in imglist:
-    xmlcontent=xmlcontent + '''    <img''' + str(i) + '''><![CDATA['''+ str(imglist[i]) + ''']]></img''' + str(i) + '''>\n'''
-    i=i+1
+    xmlcontent=xmlcontent + '''    <img><![CDATA['''+ str(imglist[i]) + ''']]></img>\n'''
 xmlcontent=xmlcontent + '''</log>
 </content>'''
 
