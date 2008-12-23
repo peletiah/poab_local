@@ -7,7 +7,8 @@ cgitb.enable()
 form = cgi.FieldStorage()
 title = form.getvalue('title','')
 logtext = form.getvalue('logtext','')
-trackfile = form.getvalue('trackfile','')
+phototitle = form.getvalue('phototitle','')
+photodescription = form.getvalue('photodescription','')
 photoset = form.getvalue('photoset','')
 filepath = form.getvalue('filepath','')
 basepath=filepath.rsplit('/',2)[0]+'/'
@@ -15,19 +16,30 @@ datepath=filepath.rsplit('/',2)[1]
 upload = form.getvalue('upload','')
 
 
-####### Create a proper imagedict #########
+####### Create a proper imagelist #########
 i=1
-j=1
-imglist=dict()
+imglist=list()
 while i < 100:
-    try:
-             tempimg=form.getvalue('img'+str(i),'')
-	     if tempimg:
-		imglist[j]=tempimg
-	        j=j+1
-             i=i+1
-    except KeyError:
-             i=i+1
+	try:
+		tempimg=form.getvalue('img'+str(i),'')
+		if tempimg:
+			imglist.append(tempimg)
+		i=i+1
+	except NameError:
+		i=i+1
+
+####### Create a proper taglist #########
+j=1
+taglist=list()
+while j < 100:
+	try:
+		temptag=form.getvalue('tag'+str(j),'')
+		if temptag:
+			taglist.append(temptag)
+		j=j+1
+	except NameError:
+		j=j+1
+
 
 ######### write to contentfile.xml #########
 print "Content-type: text/html"
@@ -39,12 +51,14 @@ xmlcontent='''<?xml version="1.0" encoding="UTF-8"?>
     <topic><![CDATA['''+ str(title) +''']]></topic>
     <logtext><![CDATA['''+ str(logtext) + ''']]></logtext>
     <filepath><![CDATA['''+ filepath + ''']]></filepath>\n
-    <trackfile><![CDATA['''+ trackfile + ''']]></trackfile>\n
-    <photoset><![CDATA['''+ photoset + ''']]></photoset>\n'''
+    <phototitle><![CDATA['''+ phototitle + ''']]></phototitle>\n
+    <photodescription><![CDATA['''+ photodescription + ''']]></photodescription>\n'''
 
-i=1
 for img in imglist:
-    xmlcontent=xmlcontent + '''    <img><![CDATA['''+ str(imglist[i]) + ''']]></img>\n'''
+    xmlcontent=xmlcontent + '''    <img><![CDATA['''+ img + ''']]></img>\n'''
+
+for tag in taglist:
+    xmlcontent=xmlcontent + '''    <tag><![CDATA['''+ tag + ''']]></tag>\n'''
 xmlcontent=xmlcontent + '''</log>
 </content>'''
 

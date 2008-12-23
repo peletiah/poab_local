@@ -1,0 +1,70 @@
+
+body {
+	margin: 10px;
+	padding: 0;
+	background-color: fdf6db;
+}
+
+#log {
+	font: normal 13px verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;
+}
+	
+
+#imageblock { 
+	overflow: auto;
+    width: 330px;
+    background-color: #eedbfd;
+    border: 1px solid #CCCCCC;
+    border-width: 1px;
+    padding: 5px;
+	position: relative;
+	top: 10px;
+	margin: 0;
+	left: 600px;
+}
+
+#tagblock {
+	overflow: auto;
+    width: 330px;
+    background-color: #dbf7fd;
+    border: 1px solid #CCCCCC;
+    border-width: 1px;
+    padding: 5px;
+	position: relative;
+	top: 30px;
+	margin: 0;
+	left: 600px;
+}
+#misc {
+	position: absolute;
+    background-color: #defddb;
+	border: 1px solid #CCCCCC;
+    border-width: 1px;
+	top: 10px;
+	margin: 0;
+	padding: 5px;
+	left: 10px;
+}
+
+#logtext {
+	position: absolute;
+	background-color: #f9fddb;
+	border: 1px solid #CCCCCC;
+	border-width: 1px;
+	top: 130px;
+	margin: 0;
+	padding: 5px;
+	left: 10px;
+}
+
+#submit {
+	position: absolute;
+	top: 635px;
+	margin: 0;
+	padding: 0;
+	left: 600px;
+}
+
+
+
+
