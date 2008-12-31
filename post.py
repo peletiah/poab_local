@@ -52,7 +52,8 @@ xmlcontent='''<?xml version="1.0" encoding="UTF-8"?>
     <logtext><![CDATA['''+ str(logtext) + ''']]></logtext>
     <filepath><![CDATA['''+ filepath + ''']]></filepath>\n
     <phototitle><![CDATA['''+ phototitle + ''']]></phototitle>\n
-    <photodescription><![CDATA['''+ photodescription + ''']]></photodescription>\n'''
+    <photodescription><![CDATA['''+ photodescription + ''']]></photodescription>\n
+    <photoset><![CDATA['''+ photoset + ''']]></photoset>\n'''
 
 for img in imglist:
     xmlcontent=xmlcontent + '''    <img><![CDATA['''+ img + ''']]></img>\n'''
