@@ -45,10 +45,11 @@ Event.add(window, 'load', function() {
 	Dom.add(del, 'images');
 	var el = document.createElement('span');
 	el.innerHTML = '<input name="img'+ ++i +'" type="file" value="img'+ i +'" /> IMG '+ i +' <br />'+
-                    '&#160;&#160;&#160;&#160;<input name="description'+ ++n +'" type="text" value="description'+ n +'" /> descr '+ n +'  <br />';
+                    '&#160;&#160;&#160;&#160;<input name="description'+ i +'" type="text" " size=40/> <br />';
 	Dom.add(el, 'images');
 		Event.add(del, 'click', function(e) {
 			Dom.remove(el);
+         i=i-1
 			Dom.remove(this);
 		});
 	});
@@ -60,10 +61,11 @@ Event.add(window, 'load', function() {
 		del.innerHTML = '<img src="/images/minus.png"> ';
 		Dom.add(del, 'tags');
 		var el = document.createElement('span');
-		el.innerHTML = '<input name="tag'+ ++n +'" type="text" value="tag'+ n +'" /> tag '+ n +' <br />';
+		el.innerHTML = '<input name="tag'+ ++n +'" type="text" /> tag '+ n +' <br />';
 		Dom.add(el, 'tags');
 		Event.add(del, 'click', function(e) {
 			Dom.remove(el);
+         n=n-1
 			Dom.remove(this);
 		});
 	});

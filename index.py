@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import cgi
 from time import strftime
+import time, datetime
 
 filepath='/srv/trackdata/bydate/'
 today=strftime("%Y-%m-%d")
@@ -8,6 +9,7 @@ today=strftime("%Y-%m-%d")
 import createdir
 
 createdir.createdir(today,filepath)
+createdate=strftime('%B %d, %Y')
 
 print "Content-type: text/html"
 print
@@ -23,6 +25,8 @@ print """
 		<script type="text/javascript" src="/js/addremove.js"></script>
 	</head>
 	<body>
+
+
 		<script type="text/javascript">
 			var editor2 = new punymce.Editor({  
 				id : 'mceEditor',
@@ -31,7 +35,6 @@ print """
 				max_width : 500
 			}); 
 		</script>
-	
 		<form action='post.py'>
 			<div id='log'>
 				<div id='imageblock'>
@@ -48,12 +51,11 @@ print """
 					<div id="phototitle">
 						<input name='phototitle' type='text' size='50'/> Phototitle
 					</div>
-					<div id="photodescription">
-						<input name='photodescription' type='text' size='50'/> Photodescription
-					</div>
 					<div id="photoset">
 						<input name='photoset' type='text' size='50'/> Photoset
 					</div>
+               <div id="createdate">
+						<input name='createdate' type='text' size='50' value='%s'/>Createdate</div>
 					<div id="filepath">
 						<input name='filepath' type='text' value='%s%s/' size='50' /> Filepath
 					</div>
@@ -64,11 +66,16 @@ print """
 					<textarea name='logtext' id='mceEditor' wrap=hard rows='20' cols='100'></textarea>
 				</div>
 				<div id='submit'>
-					<input name='upload' type='checkbox' checked/> Upload to server? <br /> <br />
 					<input type='submit' value='Write XML' />
 				</div>
 			</div>
 		</form>
+      <form action='edit.py'>
+        <div id="edit">
+            <input name='filepath' type='text' value='%s%s/' size='50' />
+            <input type='submit' value='edit' />
+        </div>
+      </form>
 	</body>
-</html>""" % (filepath,today)
+</html>""" % (createdate,filepath,today,filepath,today)
 

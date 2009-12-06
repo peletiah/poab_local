@@ -12,7 +12,7 @@ body {
 
 #imageblock { 
 	overflow: auto;
-    width: 330px;
+    width: 340px;
     background-color: #eedbfd;
     border: 1px solid #CCCCCC;
     border-width: 1px;
@@ -25,7 +25,7 @@ body {
 
 #tagblock {
 	overflow: auto;
-    width: 330px;
+    width: 340px;
     background-color: #dbf7fd;
     border: 1px solid #CCCCCC;
     border-width: 1px;
@@ -65,6 +65,18 @@ body {
 	left: 600px;
 }
 
-
+#edit {
+   font: normal 13px verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;
+	overflow: auto;
+    width: 340px;
+    background-color: #dbf7fd;
+    border: 1px solid #CCCCCC;
+    border-width: 1px;
+    padding: 5px;
+   position: relative;
+   top: 50px;
+   margin: 0;
+   left: 600px;
+}
 
 
