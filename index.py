@@ -72,7 +72,7 @@ print """
 		</form>
       <form action='edit.py'>
         <div id="edit">
-            <input name='filepath' type='text' value='%s%s/' size='50' />
+            <input name='filepath' type='text' value='%s%s/' size='30' />
             <input type='submit' value='edit' />
         </div>
       </form>

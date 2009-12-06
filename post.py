@@ -44,12 +44,10 @@ while i < 100:
     tempimg=''
     desc=''
     try:
-        #tempimg=img1
         tempimg=form.getvalue('img'+str(i),'')
         if tempimg:
             try:
                 desc=form.getvalue('description'+str(i),'')
-                #desc=description1
             except NameError:
                 desc=''
             imgdict[tempimg]=desc
