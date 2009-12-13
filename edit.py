@@ -9,40 +9,47 @@ import re
 from decimal import Decimal
 import decimal
 import time, datetime
+from time import strftime
 
 form = cgi.FieldStorage()
 filepath = form.getvalue('filepath','')
 basepath=filepath.rsplit('/',2)[0]+'/'
 datepath=filepath.rsplit('/',2)[1]
 
-tree = etree.fromstring(file(basepath+datepath+'-contentfile.xml', "r").read())
-topic =  (tree.xpath('//topic')[0]).text.replace("&gt;",">").replace("&lt;","<")
-logtext =  (tree.xpath('//logtext')[0]).text.replace("&gt;",">").replace("&lt;","<")
-filepath =  (tree.xpath('//filepath')[0]).text
-photosetname =  (tree.xpath('//photoset')[0]).text
-phototitle =  (tree.xpath('//phototitle')[0]).text
+
+
+tree = etree.parse(basepath+datepath+'-contentfile.xml')
+root = tree.getroot()
+logs=root.getiterator("log")
+for log in logs:
+    topic =  log.find('topic').text.replace("&gt;",">").replace("&lt;","<")
+    logtext =  log.find('logtext').text.replace("&gt;",">").replace("&lt;","<")
+    filepath =  log.find('filepath').text
+    photosetname =  log.find('photoset').text
+    phototitle =  log.find('phototitle').text
+    createdate =  log.find('createdate').text
+    num_of_img =  int(log.find('num_of_img').text)
+viewdate = time.strptime(createdate,'%Y-%m-%d %H:%M:%S')
+viewdate = strftime('%B %d, %Y',viewdate)
+xmltaglist=list()
 createdate =  (tree.xpath('//createdate')[0]).text
-xmlimgdesc={}
-xmlimglist=list()
 xmltaglist=list()
 
-query_xmlimglist='//img'
-for img in tree.xpath(query_xmlimglist):
-    image,description=img.text.split(':')
-    xmlimgdesc[image]=description
-    xmlimglist.append(image)
 query_xmltaglist='//tag'
 for element in tree.xpath(query_xmltaglist):
     xmltaglist.append(element.text)
 
-i=1
-
 imgstring=''
-
-for image in xmlimglist:
-    imgstring=imgstring+"""&#160;&#160;&#160;&#160;<input name="img%s" type="text" value="%s" /> IMG%s <br />
-                    &#160;&#160;&#160;&#160;<input name="description%s" type="text" value="%s"/> <br />""" % (i,image,i,i,xmlimgdesc[image])
-    i=i+1
+images = root.getiterator("img")
+for image in images:
+    if image.find('logphoto').text=='True':
+        i=1
+        while i <= num_of_img:
+            if image.find('no').text=='img'+str(i):
+                description=image.find('description').text.replace(">","&gt;").replace("<","&lt;").replace("\"",'&#34;')
+                imgstring=imgstring+"""&#160;&#160;&#160;&#160;<input name="img%s" type="text" value="%s" /> IMG%s <br />
+                &#160;&#160;&#160;&#160;<input name="description%s" type="text" value="%s"/> <br />""" % (i,image.find('name').text,i,i,description)
+            i=i+1
 
 i=1
 tagstring=''
@@ -78,7 +85,7 @@ print """
          <div id='log'>
             <div id='imageblock'>
                <img id='add-img' src="/images/plus.png"></img>
-               <div id='images'>%s%s
+               <div id='images'>%s
                </div>
             </div>
          
@@ -106,9 +113,10 @@ print """
                <textarea name='logtext' id='mceEditor' wrap=hard rows='20' cols='100'>%s</textarea>
             </div>
             <div id='submit'>
+               <input name='modimg' type='checkbox' unchecked/>Modify images<br /> <br />
                <input type='submit' value='Write XML' />
             </div>
          </div>
       </form>
    </body>
-</html>""" % (xmlimgdesc,imgstring,tagstring,phototitle,photosetname,createdate,filepath,topic,logtext)
+</html>""" % (imgstring,tagstring,phototitle,photosetname,createdate,filepath,topic,logtext)

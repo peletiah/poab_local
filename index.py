@@ -9,7 +9,7 @@ today=strftime("%Y-%m-%d")
 import createdir
 
 createdir.createdir(today,filepath)
-createdate=strftime('%B %d, %Y')
+createdate=strftime('%Y-%m-%d %H:%M:%S')
 
 print "Content-type: text/html"
 print
@@ -66,6 +66,7 @@ print """
 					<textarea name='logtext' id='mceEditor' wrap=hard rows='20' cols='100'></textarea>
 				</div>
 				<div id='submit'>
+               <input name='modimg' type='checkbox' checked/>Modify images<br /> <br />
 					<input type='submit' value='Write XML' />
 				</div>
 			</div>

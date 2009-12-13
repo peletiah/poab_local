@@ -5,18 +5,35 @@ from time import strftime
 
 
 def createdir(today,filepath):
-	if os.access(filepath+today+'/images_sorted',os.F_OK):
-		pass
-	else:
-		os.makedirs(filepath+today+'/images_sorted')
-	if os.access(filepath+today+'/images',os.F_OK):
-		pass
-	else:
-		os.mkdir(filepath+today+'/images')
-	if os.access(filepath+today+'/trackfile',os.F_OK):
-		pass
-	else:
-		os.mkdir(filepath+today+'/trackfile')
+    if os.access(filepath+today+'/images',os.F_OK):
+        pass
+    else:
+		os.makedirs(filepath+today+'/images')
+
+    if os.access(filepath+today+'/images/raw',os.F_OK):
+        pass
+    else:
+        os.mkdir(filepath+today+'/images/raw')
+
+    if os.access(filepath+today+'/images/sorted',os.F_OK):
+        pass
+    else:
+        os.mkdir(filepath+today+'/images/sorted')
+
+    if os.access(filepath+today+'/images/best',os.F_OK):
+        pass
+    else:
+        os.mkdir(filepath+today+'/images/best')
+
+    if os.access(filepath+today+'/images/best_990',os.F_OK):
+        pass
+    else:
+        os.mkdir(filepath+today+'/images/best_990')
+
+    if os.access(filepath+today+'/trackfile',os.F_OK):
+        pass
+    else:
+        os.mkdir(filepath+today+'/trackfile')
 
 
 

@@ -11,6 +11,10 @@ import re
 from decimal import Decimal
 import decimal
 import time, datetime
+from time import strftime
+import hashlib
+import mod_exif #custom
+import glob
 
 form = cgi.FieldStorage()
 title = form.getvalue('title','')
@@ -22,51 +26,63 @@ basepath=filepath.rsplit('/',2)[0]+'/'
 datepath=filepath.rsplit('/',2)[1]
 createdate=form.getvalue('createdate','')
 upload = form.getvalue('upload','')
-
-#img1="DSC_5843.jpg"
-#description1="christian+%26+daniela"
-#img2="dsc_4649.jpg"
-#description2="komischer+nebel+2008"
-#tag1="tag1"
-#tag2="tag2"
-#phototitle="Steiermark+November+2009"
-#photoset="styria"
-#filepath="/srv/trackdata/bydate/2009-12-05/"
-#title="Hello+World"
-#logtext="<div>asdfdsaffas</div><div>sadfadsfdsadf</div><div><br/></div>[img1]<div><br/></div><div><br/></div><div>sadfdsafdsa</div><div>dsafdsaf</div><div><br/></div><div>[img2]</div>"
-#upload="on"
+modimg = form.getvalue('modimg','')
 
 
 ####### Create a proper imagelist #########
-i=1
 imgdict={}
-while i < 100:
-    tempimg=''
+imagepath=filepath+'/images/'
+modimg=form.getvalue('modimg','')
+imagelist=list()
+for imgname in os.listdir(imagepath+'best'):
     desc=''
-    try:
-        tempimg=form.getvalue('img'+str(i),'')
-        if tempimg:
-            try:
-                desc=form.getvalue('description'+str(i),'')
-            except NameError:
-                desc=''
-            imgdict[tempimg]=desc
+    number=''
+    logphoto=False
+    if modimg=='on':
+        mod_exif.copy_exif(imagepath+'raw',imagepath+'best',imgname)
+        mod_exif.remove_orientation(imagepath+'best',imgname)
+        mod_exif.resize_990(imagepath+'best',imagepath+'best_990',imgname)
+    image_full=open(imagepath+'best/'+imgname).read()
+    hash_full=hashlib.sha256(image_full).hexdigest()
+    image_resized=open(imagepath+'best_990/'+imgname).read()
+    hash_resized=hashlib.sha256(image_resized).hexdigest()
+    i=1
+    num_of_img=len(glob.glob(imagepath+'best/*.jpg'))
+    while i <= num_of_img:
+        try:
+            if imgname == form.getvalue('img'+str(i),''):
+                number='img'+str(i)
+                try:
+                    desc=form.getvalue('description'+str(i),'')
+                except NameError:
+                    desc=''
+                logphoto=True
+            else:
+                fromform=form.getvalue('img'+str(i),'')
+        except NameError:
+            logphoto=False
         i=i+1
-    except NameError:
-        i=i+1
+    class imgproperty:
+        number=number
+        name=imgname
+        hash_full=hash_full
+        hash_resized=hash_resized
+        description=desc
+        logphoto=logphoto
+    imagelist.append(imgproperty)
 
 ####### Create a proper taglist #########
-j=1
+i=1
 taglist=list()
-while j < 100:
+while i < 100:
 	try:
-		temptag=form.getvalue('tag'+str(j),'')
+		temptag=form.getvalue('tag'+str(i),'')
 		#temptag=tag1
 		if temptag:
 			taglist.append(temptag)
-		j=j+1
+		i=i+1
 	except NameError:
-		j=j+1
+		i=i+1
 
 
 ######### write to contentfile.xml #########
@@ -78,17 +94,24 @@ xmlcontent='''<?xml version="1.0" encoding="UTF-8"?>
   <log>
     <topic><![CDATA['''+ str(title) +''']]></topic>
     <logtext><![CDATA['''+ str(logtext) + ''']]></logtext>
-    <filepath><![CDATA['''+ filepath + ''']]></filepath>\n
-    <phototitle><![CDATA['''+ phototitle + ''']]></phototitle>\n
-    <photoset><![CDATA['''+ photoset + ''']]></photoset>\n
-    <createdate><![CDATA['''+ createdate + ''']]></createdate>\n'''
+    <filepath><![CDATA['''+ filepath + ''']]></filepath>
+    <phototitle><![CDATA['''+ phototitle + ''']]></phototitle>
+    <photoset><![CDATA['''+ photoset + ''']]></photoset>
+    <createdate><![CDATA['''+ createdate + ''']]></createdate>
+    <num_of_img><![CDATA['''+ str(num_of_img) + ''']]></num_of_img>'''
 
-i=0
-for img in imgdict:
-    xmlcontent=xmlcontent + '''    <img><![CDATA['''+ img + ''':''' + imgdict[img] + ''']]></img>\n'''
+for imgproperty in imagelist:
+    xmlcontent=xmlcontent + '''    <img>
+      <no>'''+ imgproperty.number +'''</no>
+      <name>''' + imgproperty.name +'''</name>
+      <hash_full>''' + imgproperty.hash_full +'''</hash_full>
+      <hash_resized>'''+ imgproperty.hash_resized +'''</hash_resized>
+      <description><![CDATA['''+ imgproperty.description +''']]></description>
+      <logphoto>'''+ str(imgproperty.logphoto) +'''</logphoto>
+    </img>\n'''
 
 for tag in taglist:
-    xmlcontent=xmlcontent + '''    <tag><![CDATA['''+ tag + ''']]></tag>\n'''
+    xmlcontent=xmlcontent + '''    <tag><![CDATA['''+ str(tag) + ''']]></tag>\n'''
 xmlcontent=xmlcontent + '''</log>
 </content>'''
 
@@ -97,30 +120,47 @@ xmlfile.write(xmlcontent)
 xmlfile.close()
 
 
-tree = etree.fromstring(file(basepath+datepath+'-contentfile.xml', "r").read())
-topic =  (tree.xpath('//topic')[0]).text.replace("&gt;",">").replace("&lt;","<")
-logtext =  (tree.xpath('//logtext')[0]).text.replace("&gt;",">").replace("&lt;","<")
-filepath =  (tree.xpath('//filepath')[0]).text
-photosetname =  (tree.xpath('//photoset')[0]).text
-phototitle =  (tree.xpath('//phototitle')[0]).text
-createdate =  (tree.xpath('//createdate')[0]).text
-xmlimgdesc={}
-xmlimglist=list()
+
+
+############ Preview the xmlfile we just created ###############
+
+tree = etree.parse(basepath+datepath+'-contentfile.xml')
+root = tree.getroot()
+logs=root.getiterator("log")
+for log in logs:
+    topic =  log.find('topic').text.replace("&gt;",">").replace("&lt;","<")
+    logtext =  log.find('logtext').text.replace("&gt;",">").replace("&lt;","<")
+    filepath =  log.find('filepath').text
+    photosetname =  log.find('photoset').text
+    phototitle =  log.find('phototitle').text
+    createdate =  log.find('createdate').text
+    num_of_img =  int(log.find('num_of_img').text)
+viewdate = time.strptime(createdate,'%Y-%m-%d %H:%M:%S')
+viewdate = strftime('%B %d, %Y',viewdate)
 xmltaglist=list()
 
-query_xmlimglist='//img'
-for img in tree.xpath(query_xmlimglist):
-    image,description=img.text.split(':')
-    xmlimgdesc[image]=description
-    xmlimglist.append(image)
+images = root.getiterator("img")
+for image in images:
+    if image.find('logphoto').text=='True':
+        i=1
+        while i <= num_of_img:
+            if image.find('no').text=='img'+str(i):
+                if image.find('description').text:
+                    logtext=logtext.replace('[img%s]' % str(i),'<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+'/images/best/'+image.find('name').text+'" class="resize"><br>'+image.find('description').text+'</div>')
+                else:
+                    logtext=logtext.replace('[img%s]' % str(i),'<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+'/images/best/'+image.find('name').text+'" class="resize"></div>')
+            i=i+1
+
 query_xmltaglist='//tag'
 for element in tree.xpath(query_xmltaglist):
     xmltaglist.append(element.text)
 
-i=1
-for image in xmlimglist:
-    logtext=logtext.replace('[img'+str(i)+']','<img src="/preview/'+filepath.split('/')[4]+"/images_sorted/"+image+'" class="resize">')
-    i=i+1
+#for image in xmlimglist:
+#    if xmlimgdesc[image]:
+#        logtext=logtext.replace('[img'+str(i)+']','<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+"/images/best/"+image+'" class="resize"><br>'+xmlimgdesc[image]+'</div>')
+#    else:
+#        logtext=logtext.replace('[img'+str(i)+']','<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+"/images/best/"+image+'" class="resize"></div>')
+#    i=i+1
 
 print """
 <html> 
@@ -136,7 +176,7 @@ print """
                 <table id="logheader">
                     <tbody>
                     <tr>
-                        <td class="leftcol">""" + createdate + """</td>
+                        <td class="leftcol">""" + viewdate + """</td>
                         <td class="rightcol">Waidhofen an der Thaya, Lower Austria, Austria</td>
                     </tr>
                     </tbody>
@@ -159,5 +199,13 @@ print """
             <input type='submit' value='edit' />
         </div>
       </form>
-</div>""" % (filepath)
+<form action='upload.py'>
+        <div id="upload">
+            <input name='smallsize' type='checkbox' checked/>Upload 990px<br />
+            <input name='fullsize' type='checkbox' unchecked/>Upload Fullsize<br />
+            <input name='filepath' type='text' value='%s' size='50' />
+            <input type='submit' value='upload' />
+        </div>
+      </form>
+</div>""" % (filepath,filepath)
 
