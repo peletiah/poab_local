@@ -32,8 +32,6 @@ for log in logs:
 viewdate = time.strptime(createdate,'%Y-%m-%d %H:%M:%S')
 viewdate = strftime('%B %d, %Y',viewdate)
 xmltaglist=list()
-createdate =  (tree.xpath('//createdate')[0]).text
-xmltaglist=list()
 
 query_xmltaglist='//tag'
 for element in tree.xpath(query_xmltaglist):
