@@ -13,12 +13,12 @@ from time import strftime
 
 form = cgi.FieldStorage()
 filepath = form.getvalue('filepath','')
-basepath=filepath.rsplit('/',2)[0]+'/'
-datepath=filepath.rsplit('/',2)[1]
+#basepath=filepath.rsplit('/',2)[0]+'/'
+#datepath=filepath.rsplit('/',2)[1]
 
 
 
-tree = etree.parse(basepath+datepath+'-contentfile.xml')
+tree = etree.parse(filepath+'-contentfile.xml')
 root = tree.getroot()
 logs=root.getiterator("log")
 for log in logs:

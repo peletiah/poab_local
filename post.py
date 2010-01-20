@@ -34,6 +34,10 @@ imgdict={}
 imagepath=filepath+'/images/'
 modimg=form.getvalue('modimg','')
 imagelist=list()
+os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
+os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --gpsdir "+basepath+datepath+"/trackfile/ --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
+os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
+os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --gpsdir "+basepath+datepath+"/trackfile/ --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
 for imgname in os.listdir(imagepath+'best'):
     desc=''
     number=''
