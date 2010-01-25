@@ -36,24 +36,24 @@ imgdict={}
 imagepath=filepath+'images/'
 modimg=form.getvalue('modimg','')
 imagelist=list()
-for trackfile in os.listdir(trackpath):
-    if trackfile.lower().endswith('.tk1'):
-        #passes outputDir,gpx-filename and tkFileName to tk2togpx.interactive to convert the tk1 to gpx
-        if os.path.exists(trackpath+trackfile[:-3]+'gpx'): # is there already a gpx-file with this name?
-            pass
-        else:
-            tktogpx2.interactive(trackpath,trackfile.split('.')[0]+'.gpx',trackpath+trackfile)
-    else:
-        pass
-os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
-os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
-os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
-os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
 for imgname in os.listdir(imagepath+'best'):
     desc=''
     number=''
     logphoto=False
     if modimg=='on':
+        for trackfile in os.listdir(trackpath):
+            if trackfile.lower().endswith('.tk1'):
+                #passes outputDir,gpx-filename and tkFileName to tk2togpx.interactive to convert the tk1 to gpx
+                if os.path.exists(trackpath+trackfile[:-3]+'gpx'): # is there already a gpx-file with this name?
+                    pass
+                else:
+                    tktogpx2.interactive(trackpath,trackfile.split('.')[0]+'.gpx',trackpath+trackfile)
+            else:
+                pass
+        os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
+        os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
+        os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
+        os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
         mod_exif.copy_exif(imagepath+'raw',imagepath+'best',imgname)
         mod_exif.remove_orientation(imagepath+'best',imgname)
         mod_exif.resize_990(imagepath+'best',imagepath+'best_990',imgname)
@@ -183,6 +183,16 @@ for element in tree.xpath(query_xmltaglist):
 #        logtext=logtext.replace('[img'+str(i)+']','<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+"/images/best/"+image+'" class="resize"></div>')
 #    i=i+1
 
+try:
+    logtext_u = unicode(logtext, "ascii")
+except UnicodeError:
+    logtext_u = unicode(logtext, "utf-8")
+except TypeError:
+    logtext_u = logtext
+else:
+    # value was valid ASCII data
+    pass
+
 print """
 <html> 
     <head> 
@@ -210,7 +220,7 @@ print """
                 <span class="image_icon"><a href="/view"></a></span>
                 <span class="track_icon"><a href="/track/infomarker/14906"></a></span>
                 <span class="stats_icon"><a href="/facts/stats"></a></span></div><br><br>
-                """ + logtext + """
+                """ + logtext_u + """
                 </div>
             </div>
     </div>

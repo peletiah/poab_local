@@ -23,7 +23,7 @@ root = tree.getroot()
 logs=root.getiterator("log")
 for log in logs:
     topic =  log.find('topic').text.replace("&gt;",">").replace("&lt;","<")
-    logtext =  log.find('logtext').text.replace("&gt;",">").replace("&lt;","<")
+    logtext =  log.find('logtext').text.decode("utf-8").replace("&gt;",">").replace("&lt;","<")
     filepath =  log.find('filepath').text
     photosetname =  log.find('photoset').text
     phototitle =  log.find('phototitle').text
