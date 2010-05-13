@@ -27,6 +27,7 @@ basepath=filepath.rsplit('/',2)[0]+'/'
 datepath=filepath.rsplit('/',2)[1]
 trackpath=basepath+datepath+"/trackfile/"
 createdate=form.getvalue('createdate','')
+motor = form.getvalue('motor','')
 upload = form.getvalue('upload','')
 modimg = form.getvalue('modimg','')
 
@@ -34,63 +35,51 @@ modimg = form.getvalue('modimg','')
 ####### Create a proper imagelist #########
 imgdict={}
 imagepath=filepath+'images/'
-modimg=form.getvalue('modimg','')
 imagelist=list()
 for imgname in os.listdir(imagepath+'best'):
-    desc=''
-    number=''
-    logphoto=False
-    if modimg=='on':
-        for trackfile in os.listdir(trackpath):
-            if trackfile.lower().endswith('.tk1'):
-                #passes outputDir,gpx-filename and tkFileName to tk2togpx.interactive to convert the tk1 to gpx
-                if os.path.exists(trackpath+trackfile[:-3]+'gpx'): # is there already a gpx-file with this name?
-                    pass
-                else:
-                    tktogpx2.interactive(trackpath,trackfile.split('.')[0]+'.gpx',trackpath+trackfile)
-            else:
-                pass
-        os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
-        os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
-        os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
-        os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
-        mod_exif.copy_exif(imagepath+'raw',imagepath+'best',imgname)
-        mod_exif.remove_orientation(imagepath+'best',imgname)
-        mod_exif.resize_990(imagepath+'best',imagepath+'best_990',imgname)
-    try:
-        image_full=open(imagepath+'best/'+imgname).read()
-    except IOError:
-        pass
-    hash_full=hashlib.sha256(image_full).hexdigest()
-    try:
-        image_resized=open(imagepath+'best_990/'+imgname).read()
-    except IOError:
-        pass   
-    hash_resized=hashlib.sha256(image_resized).hexdigest()
-    i=1
-    num_of_img=len(glob.glob(imagepath+'best/*.jpg'))
-    while i <= num_of_img:
+    filetypes=('.png','.jpg','.jpeg','.gif','.tif')
+    if imgname.lower().endswith(filetypes):
+        desc=''
+        number=''
+        logphoto=False
+        if modimg=='on':
+            #mod_exif.copy_exif(imagepath+'raw',imagepath+'best',imgname)
+            #mod_exif.remove_orientation(imagepath+'best',imgname)
+            mod_exif.resize_990(imagepath+'best',imagepath+'best_990',imgname)
         try:
-            if imgname == form.getvalue('img'+str(i),''):
-                number='img'+str(i)
-                try:
-                    desc=form.getvalue('description'+str(i),'')
-                except NameError:
-                    desc=''
-                logphoto=True
-            else:
-                fromform=form.getvalue('img'+str(i),'')
-        except NameError:
-            logphoto=False
-        i=i+1
-    class imgproperty:
-        number=number
-        name=imgname
-        hash_full=hash_full
-        hash_resized=hash_resized
-        description=desc
-        logphoto=logphoto
-    imagelist.append(imgproperty)
+            image_full=open(imagepath+'best/'+imgname).read()
+        except IOError:
+            pass
+        hash_full=hashlib.sha256(image_full).hexdigest()
+        try:
+            image_resized=open(imagepath+'best_990/'+imgname).read()
+            hash_resized=hashlib.sha256(image_resized).hexdigest()
+        except IOError:
+            pass   
+        i=1
+        num_of_img=len(glob.glob(imagepath+'best/*.jpg'))
+        while i <= num_of_img:
+            try:
+                if imgname == form.getvalue('img'+str(i),''):
+                    number='img'+str(i)
+                    try:
+                        desc=form.getvalue('description'+str(i),'')
+                    except NameError:
+                        desc=''
+                    logphoto=True
+                else:
+                    fromform=form.getvalue('img'+str(i),'')
+            except NameError:
+                logphoto=False
+            i=i+1
+        class imgproperty:
+            number=number
+            name=imgname
+            hash_full=hash_full
+            hash_resized=hash_resized
+            description=desc
+            logphoto=logphoto
+        imagelist.append(imgproperty)
 
 ####### Create a proper taglist #########
 i=1
@@ -104,6 +93,28 @@ while i < 100:
 		i=i+1
 	except NameError:
 		i=i+1
+
+####### Color of the track is set by transport-type #######
+
+if motor=='on':
+    trk_color='666666'
+else:
+    trk_color='FF0000'
+
+if modimg=='on':
+    for trackfile in os.listdir(trackpath):
+        if trackfile.lower().endswith('.tk1'):
+            #passes outputDir,gpx-filename and tkFileName to tk2togpx.interactive to convert the tk1 to gpx
+            if os.path.exists(trackpath+trackfile[:-3]+'gpx'): # is there already a gpx-file with this name?
+                pass
+            else:
+                tktogpx2.interactive(trackpath,trackfile.split('.')[0]+'.gpx',trackpath+trackfile)
+        else:
+            pass
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
 
 
 ######### write to contentfile.xml #########
@@ -119,6 +130,7 @@ xmlcontent='''<?xml version="1.0" encoding="UTF-8"?>
     <phototitle><![CDATA['''+ phototitle + ''']]></phototitle>
     <photoset><![CDATA['''+ photoset + ''']]></photoset>
     <createdate><![CDATA['''+ createdate + ''']]></createdate>
+    <trk_color><![CDATA['''+ trk_color + ''']]></trk_color>
     <num_of_img><![CDATA['''+ str(num_of_img) + ''']]></num_of_img>'''
 
 for imgproperty in imagelist:
@@ -183,15 +195,21 @@ for element in tree.xpath(query_xmltaglist):
 #        logtext=logtext.replace('[img'+str(i)+']','<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+"/images/best/"+image+'" class="resize"></div>')
 #    i=i+1
 
+
 try:
+    #logtext_u=logtext.replace(u'\xa0',u'')
     logtext_u = unicode(logtext, "ascii")
 except UnicodeError:
+    #logtext_u=logtext.replace(u'\xa0',u'')
+    print 'except UnicodeError'
     logtext_u = unicode(logtext, "utf-8")
 except TypeError:
+    #logtext_u=logtext.replace(u'\xa0',u'')
+    print 'except TypeError'
     logtext_u = logtext
-else:
+except:
+    print 'except'
     # value was valid ASCII data
-    pass
 
 print """
 <html> 
@@ -220,7 +238,7 @@ print """
                 <span class="image_icon"><a href="/view"></a></span>
                 <span class="track_icon"><a href="/track/infomarker/14906"></a></span>
                 <span class="stats_icon"><a href="/facts/stats"></a></span></div><br><br>
-                """ + logtext_u + """
+                """ + logtext_u.replace(u'\xa0',u'').replace(u'\xbb',u'').replace(u'\xab',u'') + """
                 </div>
             </div>
     </div>

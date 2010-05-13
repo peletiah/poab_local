@@ -46,7 +46,10 @@ print """
 					<img id='add-tag' src="/images/plus.png"></img>
 					<div id='tags'></div>
 				</div>	
-		
+		      <div id='submit'>
+               <input name='modimg' type='checkbox' checked/>Modify images<br /> <br />
+					<input type='submit' value='Write XML' />
+				</div>
 				<div id='misc'>
 					<div id="phototitle">
 						<input name='phototitle' type='text' size='50'/> Phototitle
@@ -59,16 +62,16 @@ print """
 					<div id="filepath">
 						<input name='filepath' type='text' value='%s%s/' size='50' /> Filepath
 					</div>
+                <div id="motortransport">
+                  <input name='motor' type='checkbox' unchecked />With plane/car/train
+                </div>
 				</div>
 				
 				<div id='logtext'>
 					<input name='title' size='60' /></textarea> <br /> <br />
 					<textarea name='logtext' id='mceEditor' wrap=hard rows='20' cols='100'></textarea>
 				</div>
-				<div id='submit'>
-               <input name='modimg' type='checkbox' checked/>Modify images<br /> <br />
-					<input type='submit' value='Write XML' />
-				</div>
+				
 			</div>
 		</form>
       <form action='edit.py'>

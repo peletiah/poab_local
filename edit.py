@@ -23,12 +23,13 @@ root = tree.getroot()
 logs=root.getiterator("log")
 for log in logs:
     topic =  log.find('topic').text.replace("&gt;",">").replace("&lt;","<")
-    logtext =  log.find('logtext').text.decode("utf-8").replace("&gt;",">").replace("&lt;","<")
+    logtext =  log.find('logtext').text.replace(u'\xa0',u'').replace(u'\xbb',u'').replace(u'\xab',u'').decode("utf-8").replace("&gt;",">").replace("&lt;","<")
     filepath =  log.find('filepath').text
     photosetname =  log.find('photoset').text
     phototitle =  log.find('phototitle').text
     createdate =  log.find('createdate').text
     num_of_img =  int(log.find('num_of_img').text)
+    trk_color =  log.find('trk_color').text
 viewdate = time.strptime(createdate,'%Y-%m-%d %H:%M:%S')
 viewdate = strftime('%B %d, %Y',viewdate)
 xmltaglist=list()
@@ -55,6 +56,11 @@ for tag in xmltaglist:
     tagstring=tagstring+"""<input name="tag%s" type="text" value="%s"/> tag%s <br />""" % (i,tag,i)
     i=i+1
 
+
+if trk_color=='FF0000':
+    trk_color_checkbox='unchecked'
+else:
+    trk_color_checkbox='checked'
 
 
 print """
@@ -91,7 +97,11 @@ print """
                <img id='add-tag' src="/images/plus.png"></img>
                <div id='tags'>%s</div>
             </div>   
-      
+      <div id='submit'>
+               <input name='modimg' type='checkbox' unchecked/>Modify images<br /> <br />
+               <input type='submit' value='Write XML' />
+            </div>
+
             <div id='misc'>
 <div id="phototitle">
                   <input name='phototitle' type='text' size='50' value='%s'/> Phototitle
@@ -104,17 +114,16 @@ print """
                <div id="filepath">
                   <input name='filepath' type='text' value='%s' size='50' /> Filepath
                </div>
+               <div id="motortransport">
+                  <input name='motor' type='checkbox' %s unchecked/>With plane/car/train
+                </div>
             </div>
             
             <div id='logtext'>
                <input name='title' size='60' value='%s' /></textarea> <br /> <br />
                <textarea name='logtext' id='mceEditor' wrap=hard rows='20' cols='100'>%s</textarea>
             </div>
-            <div id='submit'>
-               <input name='modimg' type='checkbox' unchecked/>Modify images<br /> <br />
-               <input type='submit' value='Write XML' />
-            </div>
-         </div>
+                     </div>
       </form>
    </body>
-</html>""" % (imgstring,tagstring,phototitle,photosetname,createdate,filepath,topic,logtext)
+</html>""" % (imgstring,tagstring,phototitle,photosetname,createdate,filepath,trk_color_checkbox,topic,logtext)

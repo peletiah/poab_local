@@ -3,6 +3,7 @@ body {
 	margin: 10px;
 	padding: 0;
 	background-color: fdf6db;
+	overflow: auto;
 }
 
 #log {
@@ -35,6 +36,18 @@ body {
 	margin: 0;
 	left: 600px;
 }
+
+#submit {
+   overflow: auto;
+	position: relative;
+	top: 40px;
+	margin: 0;
+	padding: 0;
+	left: 600px;
+}
+
+
+
 #misc {
 	position: absolute;
     background-color: #defddb;
@@ -51,18 +64,10 @@ body {
 	background-color: #f9fddb;
 	border: 1px solid #CCCCCC;
 	border-width: 1px;
-	top: 130px;
+	top: 150px;
 	margin: 0;
 	padding: 5px;
 	left: 10px;
-}
-
-#submit {
-	position: absolute;
-	top: 635px;
-	margin: 0;
-	padding: 0;
-	left: 600px;
 }
 
 #edit {
