@@ -20,15 +20,10 @@ def createdir(today,filepath):
     else:
         os.mkdir(filepath+today+'/images/sorted')
 
-    if os.access(filepath+today+'/images/best',os.F_OK):
+    if os.access(filepath+today+'/images/sorted/990',os.F_OK):
         pass
     else:
-        os.mkdir(filepath+today+'/images/best')
-
-    if os.access(filepath+today+'/images/best_990',os.F_OK):
-        pass
-    else:
-        os.mkdir(filepath+today+'/images/best_990')
+        os.mkdir(filepath+today+'/images/sorted/990')
 
     if os.access(filepath+today+'/trackfile',os.F_OK):
         pass

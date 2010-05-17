@@ -31,33 +31,35 @@ motor = form.getvalue('motor','')
 upload = form.getvalue('upload','')
 modimg = form.getvalue('modimg','')
 
+def sortedlistdir(imagepath, cmpfunc=cmp):
+    try:
+        l = os.listdir(imagepath)
+        l.sort(cmpfunc)
+        return l
+    except OSError, (value):
+        sys.stderr.write("%s\n" % (value, ))
+        return ''
+
 
 ####### Create a proper imagelist #########
 imgdict={}
-imagepath=filepath+'images/'
+imagepath=filepath+'images/sorted/'
 imagelist=list()
-for imgname in os.listdir(imagepath+'best'):
+num_of_img=0
+for imgname in sortedlistdir(imagepath):
     filetypes=('.png','.jpg','.jpeg','.gif','.tif')
     if imgname.lower().endswith(filetypes):
         desc=''
         number=''
         logphoto=False
         if modimg=='on':
-            #mod_exif.copy_exif(imagepath+'raw',imagepath+'best',imgname)
-            #mod_exif.remove_orientation(imagepath+'best',imgname)
-            mod_exif.resize_990(imagepath+'best',imagepath+'best_990',imgname)
-        try:
-            image_full=open(imagepath+'best/'+imgname).read()
-        except IOError:
-            pass
-        hash_full=hashlib.sha256(image_full).hexdigest()
-        try:
-            image_resized=open(imagepath+'best_990/'+imgname).read()
-            hash_resized=hashlib.sha256(image_resized).hexdigest()
-        except IOError:
-            pass   
+            #mod_exif.copy_exif(imagepath+'raw',imagepath+'sorted',imgname)
+            #mod_exif.remove_orientation(imagepath+'sorted',imgname)
+            mod_exif.resize_990(imagepath,imagepath+'990',imgname)
+        hash_full=hashlib.sha256(open(imagepath+imgname).read()).hexdigest()
+        hash_resized=hashlib.sha256(open(imagepath+'990/'+imgname).read()).hexdigest()
         i=1
-        num_of_img=len(glob.glob(imagepath+'best/*.jpg'))
+        num_of_img=len(glob.glob(imagepath+'*.jpg'))
         while i <= num_of_img:
             try:
                 if imgname == form.getvalue('img'+str(i),''):
@@ -67,8 +69,6 @@ for imgname in os.listdir(imagepath+'best'):
                     except NameError:
                         desc=''
                     logphoto=True
-                else:
-                    fromform=form.getvalue('img'+str(i),'')
             except NameError:
                 logphoto=False
             i=i+1
@@ -111,10 +111,10 @@ if modimg=='on':
                 tktogpx2.interactive(trackpath,trackfile.split('.')[0]+'.gpx',trackpath+trackfile)
         else:
             pass
-    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
-    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
-    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
-    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"best_990/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
+    #os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+" --delete-geotag > /var/log/poab/geotag.log 2>&1")
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+" --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
+    #os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"990/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
 
 
 ######### write to contentfile.xml #########
@@ -179,9 +179,9 @@ for image in images:
         while i <= num_of_img:
             if image.find('no').text=='img'+str(i):
                 if image.find('description').text:
-                    logtext=logtext.replace('[img%s]' % str(i),'<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+'/images/best/'+image.find('name').text+'" class="resize"><br>'+image.find('description').text+'</div>')
+                    logtext=logtext.replace('[img%s]' % str(i),'<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+'/images/sorted/'+image.find('name').text+'" class="resize"><br>'+image.find('description').text+'</div>')
                 else:
-                    logtext=logtext.replace('[img%s]' % str(i),'<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+'/images/best/'+image.find('name').text+'" class="resize"></div>')
+                    logtext=logtext.replace('[img%s]' % str(i),'<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+'/images/sorted/'+image.find('name').text+'" class="resize"></div>')
             i=i+1
 
 query_xmltaglist='//tag'
@@ -190,9 +190,9 @@ for element in tree.xpath(query_xmltaglist):
 
 #for image in xmlimglist:
 #    if xmlimgdesc[image]:
-#        logtext=logtext.replace('[img'+str(i)+']','<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+"/images/best/"+image+'" class="resize"><br>'+xmlimgdesc[image]+'</div>')
+#        logtext=logtext.replace('[img'+str(i)+']','<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+"/images/sorted/"+image+'" class="resize"><br>'+xmlimgdesc[image]+'</div>')
 #    else:
-#        logtext=logtext.replace('[img'+str(i)+']','<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+"/images/best/"+image+'" class="resize"></div>')
+#        logtext=logtext.replace('[img'+str(i)+']','<div id=\'log_inlineimage\'><img src="/preview/'+filepath.split('/')[4]+"/images/sorted/"+image+'" class="resize"></div>')
 #    i=i+1
 
 
@@ -250,7 +250,8 @@ print """
       </form>
 <form action='upload.py'>
         <div id="upload">
-            <input name='smallsize' type='checkbox' checked/>Upload 990px<br />
+            <input name='logimgonly' type='checkbox' checked/>Images in log only<br />
+            <input name='smallsize' type='checkbox' unchecked/>Upload all 990px<br />
             <input name='fullsize' type='checkbox' unchecked/>Upload Fullsize<br />
             <input name='filepath' type='text' value='%s' size='50' />
             <input type='submit' value='upload' />
