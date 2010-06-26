@@ -7,6 +7,10 @@ def copy_exif(nefpath,jpgpath,imagename):
         
 
 def resize_990(jpgpath,resizepath,imagename):
+    if os.path.isdir(resizepath):
+        pass
+    else:
+        os.mkdir(resizepath)
     os.system("/usr/bin/convert "+jpgpath+"/"+imagename.split(".")[0]+".jpg -resize 990 "+resizepath+"/"+imagename.split(".")[0]+".jpg")
 
 def remove_orientation(jpgpath,imagename):

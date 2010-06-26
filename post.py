@@ -40,10 +40,29 @@ def sortedlistdir(imagepath, cmpfunc=cmp):
         sys.stderr.write("%s\n" % (value, ))
         return ''
 
+# convert trackfile and gps-tag images
+
+imagepath=filepath+'images/sorted/'
+
+if modimg=='on':
+    for trackfile in os.listdir(trackpath):
+        if trackfile.lower().endswith('.tk1'):
+            #passes outputDir,gpx-filename and tkFileName to tk2togpx.interactive to convert the tk1 to gpx
+            if os.path.exists(trackpath+trackfile[:-3]+'gpx'): # is there already a gpx-file with this name?
+                pass
+            else:
+                tktogpx2.interactive(trackpath,trackfile.split('.')[0]+'.gpx',trackpath+trackfile)
+        else:
+            pass
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+" --delete-geotag > /var/log/poab/geotag.log 2>&1")
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+" --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
+    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"990/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
+
+
 
 ####### Create a proper imagelist #########
 imgdict={}
-imagepath=filepath+'images/sorted/'
 imagelist=list()
 num_of_img=0
 for imgname in sortedlistdir(imagepath):
@@ -100,22 +119,6 @@ if motor=='on':
     trk_color='666666'
 else:
     trk_color='FF0000'
-
-if modimg=='on':
-    for trackfile in os.listdir(trackpath):
-        if trackfile.lower().endswith('.tk1'):
-            #passes outputDir,gpx-filename and tkFileName to tk2togpx.interactive to convert the tk1 to gpx
-            if os.path.exists(trackpath+trackfile[:-3]+'gpx'): # is there already a gpx-file with this name?
-                pass
-            else:
-                tktogpx2.interactive(trackpath,trackfile.split('.')[0]+'.gpx',trackpath+trackfile)
-        else:
-            pass
-    #os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+" --delete-geotag > /var/log/poab/geotag.log 2>&1")
-    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+" --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
-    #os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"990/ --delete-geotag > /var/log/poab/geotag.log 2>&1")
-    os.system("/usr/bin/perl /var/www/gpsPhoto.pl --dir "+imagepath+"990/ --gpsdir "+trackpath+" --timeoffset 0 --maxtimediff 1200 > /var/log/poab/geotag.log 2>&1")
-
 
 ######### write to contentfile.xml #########
 print "Content-type: text/html"
